@@ -1,5 +1,7 @@
 package com.example.mainscreenfinal;
 
+import android.content.Context;
+import android.location.LocationManager;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -8,6 +10,10 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.RecyclerView;
+import android.location.Location;
+import android.location.LocationManager;
+import android.location.LocationListener;
+
 
 import android.view.View;
 import android.view.Menu;
@@ -19,6 +25,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // LOCATION VARIABLES
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        LocationListener locationListener = new MyLocationListener();
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, locationListener);
 
 
         FloatingActionButton fab = findViewById(R.id.fab);
