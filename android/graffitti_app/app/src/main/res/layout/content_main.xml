@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:focusableInTouchMode="true"
-    android:background="@color/mint">
+    android:background="@color/greenBlue">
 
     <ImageView
         android:layout_width="match_parent"
@@ -25,7 +25,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@color/darkPurple"
+            android:background="@color/pascalWhite"
             android:layout_marginTop="120dp">
 
 
