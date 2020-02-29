@@ -4,3 +4,4 @@ services:
     build: ./flask_app
     ports:
       - "5000:5000"
+    volumes: ['./flask_app/app:/app']
