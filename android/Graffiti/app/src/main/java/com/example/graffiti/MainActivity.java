@@ -66,7 +66,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openPostScreen() {
-        
+        Intent intent  = new Intent(this, PostScreen.class);
+        startActivity(intent);
     }
 
     private void getLocation() {
