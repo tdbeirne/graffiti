@@ -16,14 +16,15 @@ import android.provider.Settings;
 import android.view.ContextMenu;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_LOCATION = 1;
-    Button getLocationButton;
-    TextView showLocationTxt;
+    ImageButton find_graffiti_button  = findViewById(R.id.find_graffiti_button);
+    ImageButton post_button  = findViewById(R.id.post_button);
 
     LocationManager locationManager;
     String latitude, longitude;
@@ -35,10 +36,8 @@ public class MainActivity extends AppCompatActivity {
 
         ActivityCompat.requestPermissions(this, new String[]
                 {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
-        showLocationTxt = findViewById(R.id.show_location);
-        getLocationButton = findViewById(R.id.get_location);
 
-        getLocationButton.setOnClickListener(new View.OnClickListener() {
+        find_graffiti_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -50,9 +49,24 @@ public class MainActivity extends AppCompatActivity {
                     getLocation();
                 }
 
+                // Get nearby items and display as a list in main screen
+
+
+
             }
 
         });
+
+        post_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openPostScreen();
+            }
+        });
+    }
+
+    private void openPostScreen() {
+        
     }
 
     private void getLocation() {
@@ -67,36 +81,19 @@ public class MainActivity extends AppCompatActivity {
             Location LocationNetwork = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             Location LocationPassive= locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
 
+            double lat = 0;
+            double longi = 0;
+
             if (LocationGPS != null) {
-                double lat = LocationGPS.getLatitude();
-                double longi = LocationGPS.getLongitude();
-
-                latitude = String.valueOf(lat);
-                longitude = String.valueOf(longi);
-
-                showLocationTxt.setText("Your Location:"
-                        +"\n"+"Latitude= "+latitude
-                        +"\n"+"Longitude= "+longitude);
+                lat = LocationGPS.getLatitude();
+                longi = LocationGPS.getLongitude()
             } else if (LocationNetwork != null) {
-                double lat = LocationNetwork.getLatitude();
-                double longi = LocationNetwork.getLongitude();
+                lat = LocationNetwork.getLatitude();
+                longi = LocationNetwork.getLongitude()
 
-                latitude = String.valueOf(lat);
-                longitude = String.valueOf(longi);
-
-                showLocationTxt.setText("Your Location:"
-                        +"\n"+"Latitude= "+latitude
-                        +"\n"+"Longitude= "+longitude);
             } else if (LocationPassive != null) {
-                double lat = LocationPassive.getLatitude();
-                double longi = LocationPassive.getLongitude();
-
-                latitude = String.valueOf(lat);
-                longitude = String.valueOf(longi);
-
-                showLocationTxt.setText("Your Location:"
-                        +"\n"+"Latitude= "+latitude
-                        +"\n"+"Longitude= "+longitude);
+                lat = LocationPassive.getLatitude();
+                longi = LocationPassive.getLongitude()
             } else {
                 Toast.makeText(this, "Can't get your location", Toast.LENGTH_SHORT).show();
             }

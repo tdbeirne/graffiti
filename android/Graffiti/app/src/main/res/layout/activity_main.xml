@@ -40,12 +40,12 @@
         </ScrollView>
 
         <ImageButton
-            android:id="@+id/refresh_button"
+            android:id="@+id/find_graffiti_button"
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:layout_gravity="bottom|start"
             android:background="@android:color/transparent"
-            android:contentDescription="refresh_button"
+            android:contentDescription="find_graffiti"
             android:layout_marginBottom="10dp"
             android:layout_marginLeft="10dp"
             app:layout_constraintBottom_toBottomOf="parent"
