@@ -17,18 +17,46 @@ socketio = SocketIO(app)
 @app.route('/')
 @app.route('/index')
 def index():
-    return "Hello, welcome to the page."
+    return "Hello, welcome to Graffiti!"
+
+@app.route('/delete-all', methods=['GET'])
+def delete_all():
+    conn = get_db()
+    cur = conn.cursor()
+
+    #delete all rows from table
+    query = "DELETE FROM {}".format(TABLE_NAME)
+    cur.execute(query)
+    conn.commit()
+
+    return "DELETED ALL MESSAGES"
 
 @app.route('/make_post', methods=['POST'])
 def make_post():
     post_data = request.get_json()
     if post_data is None:
         return {"invalid" : "please only post JSON, and not cringe"}, 400
+      
+    data = (post_data.get("latitude"), post_data.get("longitude"), post_data.get("text"), int(time.time()))
 
-    data = (post_data["latitude"], post_data["longitude"], post_data["text"], int(time.time()))
-    create_post(data)
+    #check that no values are missing
+    for item in data:
+        if not item:
+            return {"invalid" : "Missing data fields. Please check your submission."}, 400
+
+    create_post(data_list)
     return "Nice bro"
 
+def create_post(data_tuple):
+    conn = get_db()
+    cur = conn.cursor()
+
+    #write to database
+    query = "INSERT INTO {} (lat, lon, txt, time) VALUES{}".format(TABLE_NAME, str(data_tuple))
+    cur.execute(query)
+    conn.commit()
+
+#URL for testing sockets
 @app.route('/connect')
 def connect():
     return """<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
@@ -44,21 +72,32 @@ def connect():
     });
 </script>"""
 
+#receives location from user, outputs nearby posts
 @socketio.on('location')
 def handle_location(local):
     posts = retrieve_posts(local)
     found_posts = posts != None
 
+
     response_dict = {
                         "found_posts" : found_posts,
-                        "posts" : str(posts)
+                        "posts" : str(posts).lower()
     }
 
     socketio.emit('show_posts', str(response_dict))
 
-@socketio.on('connect')
-def handle_connect():
-    print("CLIENT CONNECTED")
+#retrieves posts that are near the user to the database
+def retrieve_posts(local):
+    conn = get_db()
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+
+    cur.execute("SELECT * FROM {}".format(TABLE_NAME))
+    rows = cur.fetchall()
+
+    #return message text only
+    return [row["txt"] for row in rows]
+
 
 @app.teardown_appcontext
 def close_connection(exception):
@@ -127,19 +166,6 @@ def retrieve_posts(local):
 
 def lat_long_converter(lat, lon):
     return acos(sin(1.3963) * sin(lat) + cos(1.3963) * cos(lat) * cos(lon - (-0.6981))) * 6371
-
-#function for getting distance between two points on earth in km (longitude, latitude)
-def get_haversine_dist(lon1, lat1, lon2, lat2):
-    # convert decimal degrees to radians
-    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
-
-    dlon = lon2 - lon1
-    dlat = lat2 - lat1
-    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
-    c = 2 * asin(sqrt(a))
-    r = 6371 # Radius of earth in kilometers. Use 3956 for miles
-    return c * r
-
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0')
