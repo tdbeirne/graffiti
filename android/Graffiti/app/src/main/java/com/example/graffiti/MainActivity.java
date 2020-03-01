@@ -28,15 +28,19 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_LOCATION = 1;
 
 
-    FrameLayout mainScreen = findViewById(R.id.mainScreen);
-    ImageButton find_graffiti_button  = findViewById(R.id.find_graffiti_button);
-    ImageButton post_button  = findViewById(R.id.post_button);
+    FrameLayout mainScreen;
+    ImageButton find_graffiti_button;
+    ImageButton post_button;
     LocationManager locationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mainScreen = findViewById(R.id.mainScreen);
+        find_graffiti_button = findViewById(R.id.find_graffiti_button);
+        post_button = findViewById(R.id.post_button);
 
         ActivityCompat.requestPermissions(this, new String[]
                 {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
