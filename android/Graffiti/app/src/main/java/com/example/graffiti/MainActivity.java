@@ -19,13 +19,18 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+
+import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URISyntaxException;
+
 public class MainActivity extends AppCompatActivity {
     String message;
     private Socket mSocket;
+    private static final String URL = "http://minimus.xyz:5000/connect";
 
     private static final int REQUEST_LOCATION = 1;
 
@@ -47,8 +52,17 @@ public class MainActivity extends AppCompatActivity {
         ActivityCompat.requestPermissions(this, new String[]
                 {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
 
-        //Graffiti app = (Graffiti) getApplication();
-        //mSocket = app.getmSocket();
+        try {
+            mSocket = IO.socket(URL);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+
+        if (mSocket.connected()){
+            System.out.println("Connected!!");
+        } else {
+            System.out.println("FFUUUUUUU!!");
+        }
 
         find_graffiti_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -59,10 +73,7 @@ public class MainActivity extends AppCompatActivity {
                 if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                     enableGPS();
                 }
-                // change get Location to return a dict
-                // Dict location = getLocation();
 
-                // emit the dict to server
                 /* mSocket.emit("location", getLocation()).on("show_posts", new Emitter.Listener() {
                     @Override
                     public void call(Object... args) {
