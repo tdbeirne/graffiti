@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout inputScreen = findViewById(R.id.inputScreen);
 
     //Second layout
-    RelativeLayout mainScreen = findViewById(R.id.mainScreen);
+    LinearLayout mainScreen = findViewById(R.id.mainScreen);
     ImageButton post_button_return  = findViewById(R.id.post_button_return);
     EditText input_message = findViewById(R.id.text_input);
     LocationManager locationManager;
@@ -83,10 +83,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void openPostScreen() {
-        Intent intent  = new Intent(this, PostScreen.class);
-        startActivity(intent);
-    }
 
     private void getLocation() {
         // Check for permissions again
