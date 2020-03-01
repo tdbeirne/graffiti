@@ -22,9 +22,11 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.github.nkzawa.socketio.client.Socket;
 
 public class MainActivity extends AppCompatActivity {
     String message;
+    private Socket mSocket;
 
     private static final int REQUEST_LOCATION = 1;
     ImageButton find_graffiti_button  = findViewById(R.id.find_graffiti_button);
@@ -45,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
         ActivityCompat.requestPermissions(this, new String[]
                 {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
 
+        Graffiti app = (Graffiti)getApplication();
+        mSocket = app.getmSocket();
+
         find_graffiti_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -53,13 +58,19 @@ public class MainActivity extends AppCompatActivity {
                 // Check if gps is enabled or not
                 if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                     enableGPS();
-                } else {
-                    getLocation();
                 }
+                // change get Location to return a dict
+                // Dict location = getLocation();
 
-                // Get nearby items and display as a list in main screen
-
-
+                // emit the dict to server
+                /* mSocket.emit("location", location).on("show_posts", new Emitter.Listener() {
+                    @Override
+                    public void call(Object... args) {
+                        JSONObject data = (JSONObject)args[0];
+                        //here the data is in JSON Format
+                        //Toast.makeText(MainActivity.this, data.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                });*/
 
             }
 
