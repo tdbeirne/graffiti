@@ -48,19 +48,15 @@ def make_post():
     create_post(data)
     return json.dumps({"posted": "true"})
 
-def create_post(data_tuple):
-    conn = get_db()
-    cur = conn.cursor()
-
-    #write to database
-    query = "INSERT INTO {} (lat, lon, txt, time) VALUES{}".format(TABLE_NAME, str(data_tuple))
-    cur.execute(query)
-    conn.commit()
-
 #URL for testing sockets
 @socketio.on('connect')
 def connect():
-    print("connected", file=sys.stderr)
+    socket_id = request.sid
+    print("Client connected (id = {})".format(socket_id), file=sys.stderr)
+
+@socketio.on('disconnect')
+def disconnect():
+    print("Client disconnected (id = {})".format(request.sid), file=sys.stderr)
 
 #receives location from user, outputs nearby posts
 @socketio.on('location')
@@ -124,7 +120,7 @@ def create_post(data_tuple):
 def get_random_dudes(num):
     messages = find_messages_in_radius(CENTER_X, CENTER_Y, int(num))
     # print(messages)
-    total = retrieve_posts(None)
+    total = retrieve_all_posts(None)
     # print(total)
     return "Found {} messages in radius {}m out of {} total".format(len(messages), num, len(total))
 
@@ -135,11 +131,11 @@ def find_messages_in_radius(lat: float, lon: float, m: float):
     #return message text only
     return [msg["txt"] for msg in messages_in_radius]
 
-def retrieve__all_posts(local):
+def retrieve_all_posts(local):
     return fetch_query("SELECT * FROM {}".format(TABLE_NAME))
 
 def lat_long_converter(lat, lon):
     return acos(sin(1.3963) * sin(lat) + cos(1.3963) * cos(lat) * cos(lon - (-0.6981))) * 6371
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0')
+    socketio.run(app, host='0.0.0.0', debug=True)
