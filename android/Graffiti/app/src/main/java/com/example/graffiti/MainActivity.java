@@ -13,10 +13,14 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -47,6 +51,10 @@ public class MainActivity extends AppCompatActivity {
     ImageButton find_graffiti_button;
     ImageButton post_button;
     LocationManager locationManager;
+    LinearLayout linearLayout;
+    ListAdapter listAdapter;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +73,14 @@ public class MainActivity extends AppCompatActivity {
         } else {
             System.out.println("FFUUUUUUU!!");
         }
+
+        String countryList[] = {"tommy hola", "China", "ope", "Portugle", "America", "NewZealand"};
+        // Populate linear layout with graffiti
+        linearLayout = findViewById(R.id.feed);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.list_view_setup , countryList);
+        ListView listView = findViewById(R.id.simpleListView) ;
+        listView.setAdapter(adapter);
+
 
         find_graffiti_button.setOnClickListener(new View.OnClickListener() {
             @Override

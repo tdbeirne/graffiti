@@ -32,7 +32,10 @@ public class postActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 message = input_message.getText().toString().trim();
+
                 // send information to database HERE
+                // send latitude, longitude, message
+
 
                 openMainMenu();
 
