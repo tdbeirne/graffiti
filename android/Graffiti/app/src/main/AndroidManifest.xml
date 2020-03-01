@@ -20,6 +20,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".postActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.POST" />
+
+                <category android:name="android.intent.category.POSTER" />
+            </intent-filter>
+        </activity>
+
     </application>
 
 </manifest>
