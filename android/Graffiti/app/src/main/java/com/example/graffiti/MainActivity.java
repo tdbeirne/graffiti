@@ -16,18 +16,26 @@ import android.provider.Settings;
 import android.view.ContextMenu;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
+    String message;
 
     private static final int REQUEST_LOCATION = 1;
     ImageButton find_graffiti_button  = findViewById(R.id.find_graffiti_button);
     ImageButton post_button  = findViewById(R.id.post_button);
+    LinearLayout inputScreen = findViewById(R.id.inputScreen);
 
+    //Second layout
+    RelativeLayout mainScreen = findViewById(R.id.mainScreen);
+    ImageButton post_button_return  = findViewById(R.id.post_button_return);
+    EditText input_message = findViewById(R.id.text_input);
     LocationManager locationManager;
-    String latitude, longitude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +68,17 @@ public class MainActivity extends AppCompatActivity {
         post_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openPostScreen();
+                mainScreen.setVisibility(RelativeLayout.GONE);
+                inputScreen.setVisibility(LinearLayout.VISIBLE);
+            }
+        });
+
+        post_button_return.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                message = input_message.getText().toString().trim();
+                mainScreen.setVisibility(RelativeLayout.VISIBLE);
+                inputScreen.setVisibility(LinearLayout.GONE);
             }
         });
     }
