@@ -54,7 +54,8 @@ public class MainActivity extends AppCompatActivity {
     ImageButton post_button;
     LocationManager locationManager;
     LinearLayout linearLayout;
-    ListAdapter listAdapter;
+
+    private List<String> messages = Arrays.asList("Get out of your hose for once you shut in hoe.");
 
 
 
@@ -78,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
                     String s = json_object.getString("posts");
                     s = s.replaceAll("[<>\\[\\]-]", "");
 
-                    List<String> messages = new ArrayList<String>(Arrays.asList(s.split(",")));
+                    messages = new ArrayList<String>(Arrays.asList(s.split(",")));
 
                     System.out.println(messages);
                     System.out.println(messages.size());
@@ -89,18 +90,12 @@ public class MainActivity extends AppCompatActivity {
         });
         mSocket.connect();
 
-        String countryList[] = {"tommy hola", "China", "ope", "Portugle", "America", "NewZealand"};
-        // Populate linear layout with graffiti
-        linearLayout = findViewById(R.id.feed);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.list_view_setup , countryList);
-        ListView listView = findViewById(R.id.simpleListView) ;
-        listView.setAdapter(adapter);
-
 
         find_graffiti_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 attemptSend();
+                renderAgain();
             }
 
         });
@@ -118,6 +113,15 @@ public class MainActivity extends AppCompatActivity {
     public void openPostActivity() {
         Intent intent = new Intent(this, postActivity.class);
         startActivity(intent);
+    }
+
+    public void renderAgain() {
+        // Populate linear layout with graffiti
+        linearLayout = findViewById(R.id.feed);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.list_view_setup , messages);
+        ListView listView = findViewById(R.id.simpleListView) ;
+        listView.setAdapter(adapter);
+
     }
 
 
@@ -179,8 +183,6 @@ public class MainActivity extends AppCompatActivity {
         alertDialog.show();
     }
 
-
-    private EditText mInputMessageView;
 
     private void attemptSend() {
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
