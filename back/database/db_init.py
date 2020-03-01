@@ -1,7 +1,7 @@
 import sqlite3
 from sqlite3 import Error as SQLiteError
 
-DATABASE = "./graffiti.db"
+DATABASE = '/opt/data/graffiti.db'
 MAKE_TABLE = """CREATE TABLE IF NOT EXISTS messages (
     id INTEGER PRIMARY KEY,
     lat REAL NOT NULL,
@@ -30,7 +30,11 @@ def init():
     connection = create_connection(DATABASE)
     if connection is not None:
         sql_command(connection, MAKE_TABLE)
-
+    # cur = connection.cursor()
+    # # for i in range(1000):
+    # #     query = "INSERT INTO {} (lat, lon, txt, time) VALUES{}".format(TABLE_NAME, str(data_tuple))
+    # #     cur.execute(query)
+    # # conn.commit()
 
 
 if __name__ == '__main__':

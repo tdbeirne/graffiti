@@ -1,12 +1,15 @@
-from flask import Flask, request, g
+from flask import Flask, request, g, json
 from flask_socketio import SocketIO
 from math import radians, cos, sin, asin, sqrt
 import sqlite3
 import sys
 import time
+import random
+from math import acos
 
 DATABASE = '/opt/data/graffiti.db'
 TABLE_NAME = 'messages'
+CENTER_X, CENTER_Y = 40.1004427035469, -88.22811081366866 # center of uiuc
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -30,20 +33,19 @@ def delete_all():
 
 @app.route('/make_post', methods=['POST'])
 def make_post():
-    if request.headers['Content-Type'] == 'application/json':
-        json_dict = request.json
+    post_data = request.get_json()
+    if post_data is None:
+        return {"invalid" : "please only post JSON, and not cringe"}, 400
+      
+    data = (post_data.get("latitude"), post_data.get("longitude"), post_data.get("text"), int(time.time()))
 
-        data_list = [json_dict.get("latitude"), json_dict.get("longitude"), json_dict.get("text"), int(time.time())]
+    #check that no values are missing
+    for item in data:
+        if not item:
+            return {"invalid" : "Missing data fields. Please check your submission."}, 400
 
-        #check that no values are missing
-        for item in data_list:
-            if not item:
-                return {"invalid" : "Missing data fields. Please check your submission."}, 400
-
-        create_post(tuple(data_list))
-        return {"submitted" : "true"}, 201
-    else:
-        return {"invalid" : "Please only post JSON"}, 400
+    create_post(data_list)
+    return "Nice bro"
 
 def create_post(data_tuple):
     conn = get_db()
@@ -74,14 +76,15 @@ def connect():
 @socketio.on('location')
 def handle_location(local):
     posts = retrieve_posts(local)
-    found_posts = True if (posts != None) else False
+    found_posts = posts != None
+
 
     response_dict = {
                         "found_posts" : found_posts,
                         "posts" : str(posts).lower()
     }
 
-    socketio.emit('show_posts', str(response_dict));
+    socketio.emit('show_posts', str(response_dict))
 
 #retrieves posts that are near the user to the database
 def retrieve_posts(local):
@@ -96,19 +99,73 @@ def retrieve_posts(local):
     return [row["txt"] for row in rows]
 
 
-#Methods for accessing database
-def get_db():
-    db = getattr(g, '_database', None)
-    if db is None:
-        db = g._database = sqlite3.connect(DATABASE)
-    return db
-
 @app.teardown_appcontext
 def close_connection(exception):
     db = getattr(g, '_database', None)
     if db is not None:
         db.close()
 
+# DATABASE FUNCTIONS
+
+def get_db():
+    db = getattr(g, '_database', None)
+    if db is None:
+        try:
+            db = g._database = sqlite3.connect(DATABASE)
+        except sqlite3.Error as e:
+            print(e)
+    return db
+
+def fetch_query(query: str):
+    cur = get_db().cursor()
+    cur.execute(query)
+    rows = cur.fetchall()
+    return rows
+
+@app.route('/gen')
+def gen_random():
+    conn = get_db()
+    cur = conn.cursor()
+    for _ in range(100):
+        x, y = random.uniform(CENTER_X - .2, CENTER_X + .2), random.uniform(CENTER_Y - .2, CENTER_Y + .2)
+        data = (x, y, "DIE", time.time())
+        query = "INSERT INTO {} (lat, lon, txt, time) VALUES {}".format(TABLE_NAME, str(data))
+        cur.execute(query)
+    conn.commit()
+    return "Ok idiot"
+
+def create_post(data_tuple):
+    conn = get_db()
+    cur = conn.cursor()
+    query = "INSERT INTO {} (lat, lon, txt, time) VALUES{}".format(TABLE_NAME, str(data_tuple))
+    cur.execute(query)
+    conn.commit()
+    print("WROTE TO DB")
+
+@app.route('/rad/<num>')
+def get_random_dudes(num):
+    messages = find_messages_in_radius(CENTER_X, CENTER_Y, int(num))
+    # print(messages)
+    total = retrieve_posts(None)
+    # print(total)
+    return "Found {} messages in radius {}m out of {} total".format(len(messages), num, len(total))
+
+def find_messages_in_radius(lat: float, lon: float, m: int):
+    query = "SELECT * FROM {} WHERE lat BETWEEN {} AND {} AND lon BETWEEN {} AND {};".format(TABLE_NAME, lat-.2, lat+.2, lon-.2, lon+.2)
+    candidate_messages = fetch_query(query)
+    messages_in_radius = []
+    for msg in candidate_messages:
+        (_, clat, clon, _, _) = msg
+        if lat_long_converter(clat, clon) < m:
+            messages_in_radius.append(msg)
+    return messages_in_radius
+
+
+def retrieve_posts(local):
+    return fetch_query("SELECT * FROM {}".format(TABLE_NAME))
+
+def lat_long_converter(lat, lon):
+    return acos(sin(1.3963) * sin(lat) + cos(1.3963) * cos(lat) * cos(lon - (-0.6981))) * 6371
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0')
