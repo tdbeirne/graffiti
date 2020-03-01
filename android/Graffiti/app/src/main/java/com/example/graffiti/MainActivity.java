@@ -17,8 +17,6 @@ import android.view.ContextMenu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,8 +25,6 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_LOCATION = 1;
     ImageButton find_graffiti_button  = findViewById(R.id.find_graffiti_button);
     ImageButton post_button  = findViewById(R.id.post_button);
-    LinearLayout inputScreen = findViewById(R.id.inputScreen);
-    RelativeLayout mainScreen = findViewById(R.id.mainScreen);
 
     LocationManager locationManager;
     String latitude, longitude;
@@ -53,8 +49,9 @@ public class MainActivity extends AppCompatActivity {
                     getLocation();
                 }
 
-
                 // Get nearby items and display as a list in main screen
+
+
 
             }
 
@@ -63,8 +60,7 @@ public class MainActivity extends AppCompatActivity {
         post_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                inputScreen.setVisibility(LinearLayout.VISIBLE);
-                mainScreen.setVisibility(LinearLayout.GONE);
+                openPostScreen();
             }
         });
     }
