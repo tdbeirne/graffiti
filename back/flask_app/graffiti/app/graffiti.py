@@ -59,7 +59,7 @@ def create_post(data_tuple):
 
 #URL for testing sockets
 @socketio.on('connect')
-def connect(sid, environ):
+def connect():
     print("connected", file=sys.stderr)
 
 #receives location from user, outputs nearby posts
