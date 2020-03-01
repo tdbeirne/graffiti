@@ -35,17 +35,17 @@ def delete_all():
 def make_post():
     post_data = request.get_json()
     if post_data is None:
-        return {"invalid" : "Please only post JSON."}, 400
+        return '{"invalid" : "Please only post JSON."}', 400
 
     data = (post_data.get("latitude"), post_data.get("longitude"), post_data.get("text"), int(time.time()))
 
     #check that no values are missing
     for item in data:
         if not item:
-            return {"invalid" : "Missing data fields. Please check your submission."}, 400
+            return '{"invalid" : "Missing data fields. Please check your submission."}', 400
 
     create_post(data)
-    return {"posted": "true"}
+    return '{"posted": "true"}''
 
 def create_post(data_tuple):
     conn = get_db()
