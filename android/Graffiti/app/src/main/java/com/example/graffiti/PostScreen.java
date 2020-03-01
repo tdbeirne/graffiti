@@ -7,11 +7,30 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
+import androidx.appcompat.app.AppCompatActivity;
 
 
-public class PostScreen extends Activity {
+public class PostScreen extends AppCompatActivity {
     private ImageButton post_graffiti_button = findViewById(R.id.post_button_return);
     private EditText text_input;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        post_graffiti_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openOriginalMenu();
+            }
+        });
+    }
+
+    private void openOriginalMenu() {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+    }
 
 }
 
@@ -38,7 +57,4 @@ public class PostScreen extends Activity {
     }
 }*/
 
-private void openOriginalMenu() {
-    Intent intent = new Intent(this, MainActivity.class);
-    startActivity(intent);
-}
+

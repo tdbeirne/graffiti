@@ -87,14 +87,14 @@ public class MainActivity extends AppCompatActivity {
 
             if (LocationGPS != null) {
                 lat = LocationGPS.getLatitude();
-                longi = LocationGPS.getLongitude()
+                longi = LocationGPS.getLongitude();
             } else if (LocationNetwork != null) {
                 lat = LocationNetwork.getLatitude();
-                longi = LocationNetwork.getLongitude()
+                longi = LocationNetwork.getLongitude();
 
             } else if (LocationPassive != null) {
                 lat = LocationPassive.getLatitude();
-                longi = LocationPassive.getLongitude()
+                longi = LocationPassive.getLongitude();
             } else {
                 Toast.makeText(this, "Can't get your location", Toast.LENGTH_SHORT).show();
             }
