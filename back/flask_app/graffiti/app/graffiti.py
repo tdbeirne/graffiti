@@ -63,6 +63,8 @@ def disconnect():
 def handle_location(local):
     posts = find_messages_in_radius(local["latitude"], local["longitude"], 0.01)
     found_posts = (posts != None)
+	
+	print(posts, file = sys.stderr)
 
     response_dict = {
                         "found_posts" : str(found_posts).lower(),

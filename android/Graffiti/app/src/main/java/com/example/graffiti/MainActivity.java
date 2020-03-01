@@ -65,13 +65,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void call(Object... args) {
                 try {
-                    JSONObject post = new JSONObject((String) args[0]);
-                    List<String> posts = new ArrayList<String>();
-                    JSONArray arr = post.getJSONArray("posts");
-                    for (int i = 0 ; i < arr.length() ; i++){
-                        posts.add(arr.getString(i));
-                    }
-                    System.out.println(posts);
+                    JSONObject post = new JSONObject((String)args[0]);
+                    String posts_string = post.getString("posts");
+                    System.out.println(posts_string);
+                    System.out.println(posts_string.length());
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
