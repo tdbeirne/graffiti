@@ -16,19 +16,31 @@ socketio = SocketIO(app)
 def index():
     return "Hello, welcome to Graffiti!"
 
+@app.route('/delete-all', methods=['GET'])
+def delete_all():
+    conn = get_db()
+    cur = conn.cursor()
+
+    #delete all rows from table
+    query = "DELETE FROM {}".format(TABLE_NAME)
+    cur.execute(query)
+    conn.commit()
+
+    return "DELETED ALL MESSAGES"
+
 @app.route('/make_post', methods=['POST'])
 def make_post():
     if request.headers['Content-Type'] == 'application/json':
         json_dict = request.json
 
-        data_list = [json_dict.get("latitude"), json_dict.get("longitude"), json_dict.get("text"), int(time.time()]
+        data_list = [json_dict.get("latitude"), json_dict.get("longitude"), json_dict.get("text"), int(time.time())]
 
         #check that no values are missing
         for item in data_list:
             if not item:
                 return {"invalid" : "Missing data fields. Please check your submission."}, 400
 
-        create_post(tuple(data_tuple))
+        create_post(tuple(data_list))
         return {"submitted" : "true"}, 201
     else:
         return {"invalid" : "Please only post JSON"}, 400
