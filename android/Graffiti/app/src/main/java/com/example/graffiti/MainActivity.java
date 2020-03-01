@@ -62,11 +62,11 @@ public class MainActivity extends AppCompatActivity {
         ActivityCompat.requestPermissions(this, new String[]
                 {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
 
-        mSocket.on("post_data", new Emitter.Listener() {
+        mSocket.on("show_posts", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                JSONObject data = (JSONObject)args[1];
-                Toast.makeText(MainActivity.this, data.toString(), Toast.LENGTH_SHORT).show();
+                String data = (String) args[0];
+                System.out.println(data);
             }
         });
 
@@ -192,7 +192,15 @@ public class MainActivity extends AppCompatActivity {
     private EditText mInputMessageView;
 
     private void attemptSend() {
-        mSocket.emit("location", "{\"latitude\": 23, \"longitude\": 43}");
+        JSONObject locationObj = new JSONObject();
+        try {
+            locationObj.put("latitude",123);
+            locationObj.put("longitude", 123);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        mSocket.emit("location", locationObj);
     }
 
 
