@@ -35,8 +35,8 @@ def delete_all():
 def make_post():
     post_data = request.get_json()
     if post_data is None:
-        return {"invalid" : "please only post JSON, and not cringe"}, 400
-      
+        return {"invalid" : "Please only post JSON."}, 400
+
     data = (post_data.get("latitude"), post_data.get("longitude"), post_data.get("text"), int(time.time()))
 
     #check that no values are missing
@@ -44,8 +44,8 @@ def make_post():
         if not item:
             return {"invalid" : "Missing data fields. Please check your submission."}, 400
 
-    create_post(data_list)
-    return "Nice bro"
+    create_post(data)
+    return {"posted": "true"}
 
 def create_post(data_tuple):
     conn = get_db()
@@ -64,7 +64,7 @@ def connect():
     var socket = io();
 
     socket.on('connect', function() {
-        socket.emit('location', "349487, 345069843");
+        socket.emit('location', {"latitude": 43.0303, "longitude" : 38.3423});
     });
 
     socket.on('show_posts', function(data) {
@@ -75,7 +75,7 @@ def connect():
 #receives location from user, outputs nearby posts
 @socketio.on('location')
 def handle_location(local):
-    posts = retrieve_posts(local)
+    posts = find_messages_in_radius(local["latitude"], local["longitude"], 0.01)
     found_posts = posts != None
 
 
@@ -85,19 +85,6 @@ def handle_location(local):
     }
 
     socketio.emit('show_posts', str(response_dict))
-
-#retrieves posts that are near the user to the database
-def retrieve_posts(local):
-    conn = get_db()
-    conn.row_factory = sqlite3.Row
-    cur = conn.cursor()
-
-    cur.execute("SELECT * FROM {}".format(TABLE_NAME))
-    rows = cur.fetchall()
-
-    #return message text only
-    return [row["txt"] for row in rows]
-
 
 @app.teardown_appcontext
 def close_connection(exception):
@@ -117,7 +104,9 @@ def get_db():
     return db
 
 def fetch_query(query: str):
-    cur = get_db().cursor()
+    conn = get_db()
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
     cur.execute(query)
     rows = cur.fetchall()
     return rows
@@ -150,18 +139,14 @@ def get_random_dudes(num):
     # print(total)
     return "Found {} messages in radius {}m out of {} total".format(len(messages), num, len(total))
 
-def find_messages_in_radius(lat: float, lon: float, m: int):
-    query = "SELECT * FROM {} WHERE lat BETWEEN {} AND {} AND lon BETWEEN {} AND {};".format(TABLE_NAME, lat-.2, lat+.2, lon-.2, lon+.2)
-    candidate_messages = fetch_query(query)
-    messages_in_radius = []
-    for msg in candidate_messages:
-        (_, clat, clon, _, _) = msg
-        if lat_long_converter(clat, clon) < m:
-            messages_in_radius.append(msg)
-    return messages_in_radius
+def find_messages_in_radius(lat: float, lon: float, m: float):
+    query = "SELECT * FROM {} WHERE lat BETWEEN {} AND {} AND lon BETWEEN {} AND {};".format(TABLE_NAME, lat - m, lat + m, lon - m, lon + m)
+    messages_in_radius = fetch_query(query)
 
+    #return message text only
+    return [msg["txt"] for msg in messages_in_radius]
 
-def retrieve_posts(local):
+def retrieve__all_posts(local):
     return fetch_query("SELECT * FROM {}".format(TABLE_NAME))
 
 def lat_long_converter(lat, lon):
