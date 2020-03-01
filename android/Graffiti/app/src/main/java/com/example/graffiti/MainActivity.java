@@ -20,6 +20,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 import com.github.nkzawa.socketio.client.Socket;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
     String message;
@@ -57,12 +59,12 @@ public class MainActivity extends AppCompatActivity {
                 // Dict location = getLocation();
 
                 // emit the dict to server
-                /* mSocket.emit("location", location).on("show_posts", new Emitter.Listener() {
+                /* mSocket.emit("location", getLocation()).on("show_posts", new Emitter.Listener() {
                     @Override
                     public void call(Object... args) {
-                        JSONObject data = (JSONObject)args[0];
-                        //here the data is in JSON Format
-                        //Toast.makeText(MainActivity.this, data.toString(), Toast.LENGTH_SHORT).show();
+                        // { found_posts: bool, posts : [] }
+                        JSONObject post = (JSONObject)args[0];
+
                     }
                 });*/
 
@@ -86,8 +88,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void getLocation() {
+    private JSONObject getLocation() {
         // Check for permissions again
+        double lat = 0;
+        double longi = 0;
+
         if (ActivityCompat. checkSelfPermission(MainActivity.this,Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) !=  PackageManager.PERMISSION_GRANTED)
         {
@@ -97,9 +102,6 @@ public class MainActivity extends AppCompatActivity {
             Location LocationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             Location LocationNetwork = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             Location LocationPassive= locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-
-            double lat = 0;
-            double longi = 0;
 
             if (LocationGPS != null) {
                 lat = LocationGPS.getLatitude();
@@ -115,6 +117,15 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Can't get your location", Toast.LENGTH_SHORT).show();
             }
         }
+        JSONObject locationObj = new JSONObject();
+        try {
+            locationObj.put("latitude", lat);
+            locationObj.put("longitude", longi);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return locationObj;
     }
 
     private void enableGPS() {
