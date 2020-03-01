@@ -13,7 +13,9 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.text.TextUtils;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -59,12 +61,23 @@ public class MainActivity extends AppCompatActivity {
 
         ActivityCompat.requestPermissions(this, new String[]
                 {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
+
+        mSocket.on("post_data", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                JSONObject data = (JSONObject)args[1];
+                Toast.makeText(MainActivity.this, data.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
         mSocket.connect();
         if (mSocket.connected()){
             System.out.println("Connected!!");
         } else {
             System.out.println("FFUUUUUUU!!");
         }
+
+        attemptSend();
 
         find_graffiti_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,31 +88,31 @@ public class MainActivity extends AppCompatActivity {
                 if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                     enableGPS();
                 }
-                mSocket.emit("location", getLocation()).on("show_posts", new Emitter.Listener() {
-                    @Override
-                    public void call(Object... args) {
-                        // { found_posts: bool, posts : [] }
-                        JSONObject post = (JSONObject)args[0];
-                        Boolean found_posts = false;
-                        List<String> posts = new ArrayList<String>();
-                        try {
-                            found_posts = post.getBoolean("found_posts");
-                            JSONArray arr = post.getJSONArray("posts");
-                            for(int i = 0 ; i < arr.length() ; i++){
-                                posts.add(arr.getJSONObject(i).getString("interestKey"));
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                        if (found_posts && !posts.isEmpty()) {
-                            System.out.println(posts.get(0));
-                        } else {
-                            System.out.println("found_posts: "+found_posts);
-                            System.out.println("!posts.isEmpty(): "+!posts.isEmpty());
-                        }
-                    }
-                });
+//                mSocket.emit("location", getLocation()).on("show_posts", new Emitter.Listener() {
+//                    @Override
+//                    public void call(Object... args) {
+//                        // { found_posts: bool, posts : [] }
+//                        JSONObject post = (JSONObject)args[0];
+//                        Boolean found_posts = false;
+//                        List<String> posts = new ArrayList<String>();
+//                        try {
+//                            found_posts = post.getBoolean("found_posts");
+//                            JSONArray arr = post.getJSONArray("posts");
+//                            for(int i = 0 ; i < arr.length() ; i++){
+//                                posts.add(arr.getJSONObject(i).getString("interestKey"));
+//                            }
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//
+//                        if (found_posts && !posts.isEmpty()) {
+//                            System.out.println(posts.get(0));
+//                        } else {
+//                            System.out.println("found_posts: "+found_posts);
+//                            System.out.println("!posts.isEmpty(): "+!posts.isEmpty());
+//                        }
+//                    }
+//                });
             }
 
         });
@@ -110,8 +123,6 @@ public class MainActivity extends AppCompatActivity {
                 openPostActivity();
             }
         });
-
-
     }
 
     public void openPostActivity() {
@@ -176,5 +187,20 @@ public class MainActivity extends AppCompatActivity {
         });
         final AlertDialog alertDialog = builder.create();
         alertDialog.show();
+    }
+
+    private EditText mInputMessageView;
+
+    private void attemptSend() {
+        mSocket.emit("location", "{\"latitude\": 23, \"longitude\": 43}");
+    }
+
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        mSocket.disconnect();
     }
 }
