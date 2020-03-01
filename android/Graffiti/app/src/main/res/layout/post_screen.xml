@@ -6,16 +6,30 @@
     android:orientation="vertical" >
 
 
-
-    <Button
-        android:id="@+id/submit"
-        android:layout_width="wrap_content"
+    <EditText
+        android:id="@+id/text_input"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:background="@color/mint"
+        android:layout_marginTop="200dp"
+        android:gravity="center"
+        android:background="@color/darkPurple"
+        android:text="Enter your graffiti"
+        android:textColor="@color/pascalWhite" />
+
+    <ImageButton
+        android:id="@+id/post_button_return"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_gravity="center|bottom"
+        android:background="@android:color/transparent"
         android:contentDescription="post_button"
-        android:layout_marginTop="600dp"
-        android:layout_marginRight="10dp"
+        android:gravity="bottom|center"
         android:scaleType="centerInside"
-        android:text="Submit Graffiti" />
+        android:src="@drawable/post_button">
+
+    </ImageButton>
+
+
+
 </LinearLayout>
