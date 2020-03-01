@@ -20,18 +20,26 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     String message;
     private Socket mSocket;
-    private static final String URL = "http://minimus.xyz:5000/connect";
-
+    {
+        try {
+            mSocket = IO.socket("http://minimus.xyz:5000");
+        } catch (URISyntaxException e) {}
+    }
     private static final int REQUEST_LOCATION = 1;
 
 
@@ -51,13 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
         ActivityCompat.requestPermissions(this, new String[]
                 {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
-
-        try {
-            mSocket = IO.socket(URL);
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-
+        mSocket.connect();
         if (mSocket.connected()){
             System.out.println("Connected!!");
         } else {
@@ -73,16 +75,31 @@ public class MainActivity extends AppCompatActivity {
                 if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                     enableGPS();
                 }
-
-                /* mSocket.emit("location", getLocation()).on("show_posts", new Emitter.Listener() {
+                mSocket.emit("location", getLocation()).on("show_posts", new Emitter.Listener() {
                     @Override
                     public void call(Object... args) {
                         // { found_posts: bool, posts : [] }
                         JSONObject post = (JSONObject)args[0];
+                        Boolean found_posts = false;
+                        List<String> posts = new ArrayList<String>();
+                        try {
+                            found_posts = post.getBoolean("found_posts");
+                            JSONArray arr = post.getJSONArray("posts");
+                            for(int i = 0 ; i < arr.length() ; i++){
+                                posts.add(arr.getJSONObject(i).getString("interestKey"));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
 
+                        if (found_posts && !posts.isEmpty()) {
+                            System.out.println(posts.get(0));
+                        } else {
+                            System.out.println("found_posts: "+found_posts);
+                            System.out.println("!posts.isEmpty(): "+!posts.isEmpty());
+                        }
                     }
-                });*/
-
+                });
             }
 
         });
