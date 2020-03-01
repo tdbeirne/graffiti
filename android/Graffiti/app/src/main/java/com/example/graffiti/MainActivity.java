@@ -27,6 +27,8 @@ import android.widget.Toast;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,10 +36,10 @@ import org.json.JSONObject;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    String message;
     private Socket mSocket;
     {
         try {
@@ -68,12 +70,24 @@ public class MainActivity extends AppCompatActivity {
 
         ActivityCompat.requestPermissions(this, new String[]
                 {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
+        mSocket.on("show_posts", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                try {
+                    JSONObject json_object = new JSONObject((String)args[0]);
+                    String s = json_object.getString("posts");
+                    s = s.replaceAll("[<>\\[\\]-]", "");
+
+                    List<String> messages = new ArrayList<String>(Arrays.asList(s.split(",")));
+
+                    System.out.println(messages);
+                    System.out.println(messages.size());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
         mSocket.connect();
-        if (mSocket.connected()){
-            System.out.println("Connected!!");
-        } else {
-            System.out.println("FFUUUUUUU!!");
-        }
 
         String countryList[] = {"tommy hola", "China", "ope", "Portugle", "America", "NewZealand"};
         // Populate linear layout with graffiti
@@ -86,37 +100,7 @@ public class MainActivity extends AppCompatActivity {
         find_graffiti_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-                // Check if gps is enabled or not
-                if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                    enableGPS();
-                }
-                mSocket.emit("location", getLocation()).on("show_posts", new Emitter.Listener() {
-                    @Override
-                    public void call(Object... args) {
-                        // { found_posts: bool, posts : [] }
-                        JSONObject post = (JSONObject)args[0];
-                        Boolean found_posts = false;
-                        List<String> posts = new ArrayList<String>();
-                        try {
-                            found_posts = post.getBoolean("found_posts");
-                            JSONArray arr = post.getJSONArray("posts");
-                            for(int i = 0 ; i < arr.length() ; i++){
-                                posts.add(arr.getJSONObject(i).getString("interestKey"));
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                        if (found_posts && !posts.isEmpty()) {
-                            System.out.println(posts.get(0));
-                        } else {
-                            System.out.println("found_posts: "+found_posts);
-                            System.out.println("!posts.isEmpty(): "+!posts.isEmpty());
-                        }
-                    }
-                });
+                attemptSend();
             }
 
         });
@@ -193,5 +177,28 @@ public class MainActivity extends AppCompatActivity {
         });
         final AlertDialog alertDialog = builder.create();
         alertDialog.show();
+    }
+
+
+    private EditText mInputMessageView;
+
+    private void attemptSend() {
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        // Check if gps is enabled or not
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            enableGPS();
+        }
+
+        mSocket.emit("location", getLocation());
+    }
+
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        mSocket.disconnect();
     }
 }
