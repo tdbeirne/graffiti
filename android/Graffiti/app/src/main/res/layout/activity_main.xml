@@ -37,6 +37,7 @@
             </LinearLayout>
 
         </ScrollView>
+    </RelativeLayout>
 
         <ImageButton
             android:id="@+id/find_graffiti_button"
@@ -71,6 +72,8 @@
             android:scaleType="centerInside"
             android:src="@drawable/post_button">
         </ImageButton>
+
+
 
 
 
