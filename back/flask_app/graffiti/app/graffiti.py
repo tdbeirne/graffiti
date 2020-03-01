@@ -58,20 +58,9 @@ def create_post(data_tuple):
     conn.commit()
 
 #URL for testing sockets
-@app.route('/connect')
-def connect():
-    return """<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
-<script type="text/javascript" charset="utf-8">
-    var socket = io();
-
-    socket.on('connect', function() {
-        socket.emit('location', {"latitude": 43.0303, "longitude" : 38.3423});
-    });
-
-    socket.on('show_posts', function(data) {
-        console.log(data)
-    });
-</script>"""
+@socketio.on('connect')
+def connect(sid, environ):
+    print("connected", file=sys.stderr)
 
 #receives location from user, outputs nearby posts
 @socketio.on('location')
