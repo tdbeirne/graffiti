@@ -76,8 +76,7 @@ def connect():
 @socketio.on('location')
 def handle_location(local):
     posts = find_messages_in_radius(local["latitude"], local["longitude"], 0.01)
-    found_posts = posts != None
-
+    found_posts = (posts != None)
 
     response_dict = {
                         "found_posts" : found_posts,
