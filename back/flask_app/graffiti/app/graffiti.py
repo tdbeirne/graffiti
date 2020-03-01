@@ -69,11 +69,11 @@ def handle_location(local):
     found_posts = (posts != None)
 
     response_dict = {
-                        "found_posts" : found_posts,
-                        "posts" : str(posts).lower()
+                        "found_posts" : str(found_posts).lower(),
+                        "posts" : posts
     }
 
-    socketio.emit('show_posts', str(response_dict))
+    socketio.emit('show_posts', json.dumps(response_dict))
 
 @app.teardown_appcontext
 def close_connection(exception):

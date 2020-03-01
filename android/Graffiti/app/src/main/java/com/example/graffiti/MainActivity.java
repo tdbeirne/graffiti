@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    String message;
     private Socket mSocket;
     {
         try {
@@ -65,54 +64,28 @@ public class MainActivity extends AppCompatActivity {
         mSocket.on("show_posts", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                String data = (String) args[0];
-                System.out.println(data);
+                try {
+                    JSONObject post = new JSONObject((String) args[0]);
+                    List<String> posts = new ArrayList<String>();
+                    JSONArray arr = post.getJSONArray("posts");
+                    for (int i = 0 ; i < arr.length() ; i++){
+                        posts.add(arr.getString(i));
+                    }
+                    System.out.println(posts);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
         mSocket.connect();
-        if (mSocket.connected()){
-            System.out.println("Connected!!");
-        } else {
-            System.out.println("FFUUUUUUU!!");
-        }
 
         attemptSend();
 
         find_graffiti_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-                // Check if gps is enabled or not
-                if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                    enableGPS();
-                }
-//                mSocket.emit("location", getLocation()).on("show_posts", new Emitter.Listener() {
-//                    @Override
-//                    public void call(Object... args) {
-//                        // { found_posts: bool, posts : [] }
-//                        JSONObject post = (JSONObject)args[0];
-//                        Boolean found_posts = false;
-//                        List<String> posts = new ArrayList<String>();
-//                        try {
-//                            found_posts = post.getBoolean("found_posts");
-//                            JSONArray arr = post.getJSONArray("posts");
-//                            for(int i = 0 ; i < arr.length() ; i++){
-//                                posts.add(arr.getJSONObject(i).getString("interestKey"));
-//                            }
-//                        } catch (JSONException e) {
-//                            e.printStackTrace();
-//                        }
-//
-//                        if (found_posts && !posts.isEmpty()) {
-//                            System.out.println(posts.get(0));
-//                        } else {
-//                            System.out.println("found_posts: "+found_posts);
-//                            System.out.println("!posts.isEmpty(): "+!posts.isEmpty());
-//                        }
-//                    }
-//                });
+                attemptSend();
             }
 
         });
@@ -192,15 +165,14 @@ public class MainActivity extends AppCompatActivity {
     private EditText mInputMessageView;
 
     private void attemptSend() {
-        JSONObject locationObj = new JSONObject();
-        try {
-            locationObj.put("latitude",123);
-            locationObj.put("longitude", 123);
-        } catch (JSONException e) {
-            e.printStackTrace();
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        // Check if gps is enabled or not
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            enableGPS();
         }
 
-        mSocket.emit("location", locationObj);
+        mSocket.emit("location", getLocation());
     }
 
 
