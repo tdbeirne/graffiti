@@ -13,32 +13,24 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.view.ContextMenu;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 import com.github.nkzawa.socketio.client.Socket;
 
-//import java.net.Socket;
-
 public class MainActivity extends AppCompatActivity {
     String message;
-    //private Socket mSocket;
+    private Socket mSocket;
 
     private static final int REQUEST_LOCATION = 1;
-    /*ImageButton find_graffiti_button  = findViewById(R.id.find_graffiti_button);
-    ImageButton post_button  = findViewById(R.id.post_button);
-    LinearLayout inputScreen = findViewById(R.id.inputScreen);
 
-    //Second layout
-    LinearLayout mainScreen = findViewById(R.id.mainScreen);
-    ImageButton post_button_return  = findViewById(R.id.post_button_return);
-    EditText input_message = findViewById(R.id.text_input);*/
+
+    FrameLayout mainScreen = findViewById(R.id.mainScreen);
+    ImageButton find_graffiti_button  = findViewById(R.id.find_graffiti_button);
+    ImageButton post_button  = findViewById(R.id.post_button);
     LocationManager locationManager;
 
     @Override
@@ -49,10 +41,10 @@ public class MainActivity extends AppCompatActivity {
         ActivityCompat.requestPermissions(this, new String[]
                 {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
 
-        //Graffiti app = (Graffiti)getApplication();
-        //mSocket = app.getmSocket();
+        Graffiti app = (Graffiti)getApplication();
+        mSocket = app.getmSocket();
 
-        /*find_graffiti_button.setOnClickListener(new View.OnClickListener() {
+        find_graffiti_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -72,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
                         //here the data is in JSON Format
                         //Toast.makeText(MainActivity.this, data.toString(), Toast.LENGTH_SHORT).show();
                     }
-                });
+                });*/
 
             }
 
@@ -81,19 +73,16 @@ public class MainActivity extends AppCompatActivity {
         post_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainScreen.setVisibility(RelativeLayout.GONE);
-                inputScreen.setVisibility(LinearLayout.VISIBLE);
+                openPostActivity();
             }
         });
 
-        post_button_return.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                message = input_message.getText().toString().trim();
-                mainScreen.setVisibility(RelativeLayout.VISIBLE);
-                inputScreen.setVisibility(LinearLayout.GONE);
-            }
-        });*/
+
+    }
+
+    public void openPostActivity() {
+        Intent intent = new Intent(this, postActivity.class);
+        startActivity(intent);
     }
 
 
