@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        
         mainScreen = findViewById(R.id.mainScreen);
         find_graffiti_button = findViewById(R.id.find_graffiti_button);
         post_button = findViewById(R.id.post_button);
