@@ -1,4 +1,4 @@
-from flask import Flask, request, g
+from flask import Flask, request, g, json
 from flask_socketio import SocketIO
 from math import radians, cos, sin, asin, sqrt
 import sqlite3
@@ -18,23 +18,13 @@ def index():
 
 @app.route('/make_post', methods=['POST'])
 def make_post():
-    if request.headers['Content-Type'] == 'application/json':
-        json_dict = request.json
-        data_tuple = (json_dict["latitude"], json_dict["longitude"], json_dict["text"], int(time.time()))
-        create_post(data_tuple)
-        return "Nice bro"
-    else:
+    post_data = request.get_json()
+    if post_data is None:
         return {"invalid" : "please only post JSON, and not cringe"}, 400
 
-def create_post(data_tuple):
-    conn = get_db()
-    cur = conn.cursor()
-    query = "INSERT INTO {} (lat, lon, txt, time) VALUES{}".format(TABLE_NAME, str(data_tuple))
-    results = cur.execute(query)
-    conn.commit()
-
-    print("WROTE TO DB")
-
+    data = (post_data["latitude"], post_data["longitude"], post_data["text"], int(time.time()))
+    create_post(data)
+    return "Nice bro"
 
 @app.route('/connect')
 def connect():
@@ -54,32 +44,18 @@ def connect():
 @socketio.on('location')
 def handle_location(local):
     posts = retrieve_posts(local)
-    found_posts = 1 if (posts != None) else 0
+    found_posts = posts != None
 
     response_dict = {
                         "found_posts" : found_posts,
                         "posts" : str(posts)
     }
 
-    socketio.emit('show_posts', str(response_dict));
-
-def retrieve_posts(local):
-    cur = get_db().cursor()
-
-    cur.execute("SELECT * FROM {}".format(TABLE_NAME))
-    rows = cur.fetchall()
-
-    return rows
+    socketio.emit('show_posts', str(response_dict))
 
 @socketio.on('connect')
 def handle_connect():
     print("CLIENT CONNECTED")
-
-def get_db():
-    db = getattr(g, '_database', None)
-    if db is None:
-        db = g._database = sqlite3.connect(DATABASE)
-    return db
 
 @app.teardown_appcontext
 def close_connection(exception):
@@ -87,6 +63,34 @@ def close_connection(exception):
     if db is not None:
         db.close()
 
+# DATABASE FUNCTIONS
+
+def get_db():
+    db = getattr(g, '_database', None)
+    if db is None:
+        db = g._database = sqlite3.connect(DATABASE)
+    return db
+
+def fetch_query(query: str):
+    cur = get_db().cursor()
+    cur.execute(query)
+    rows = cur.fetchall()
+    return rows
+
+def create_post(data_tuple):
+    conn = get_db()
+    cur = conn.cursor()
+    query = "INSERT INTO {} (lat, lon, txt, time) VALUES{}".format(TABLE_NAME, str(data_tuple))
+    cur.execute(query)
+    conn.commit()
+    print("WROTE TO DB")
+
+def find_messages_in_radius(lat: float, lon: float, km: float):
+    query = "SELECT * FROM {} WHERE acos(sin(1.3963) * sin(lat) + cos(1.3963) * cos(lat) * cos(lon - (-0.6981))) * 6371 <= {};".format(TABLE_NAME, km)
+    return fetch_query(query)
+
+def retrieve_posts(local):
+    return fetch_query("SELECT * FROM {}".format(TABLE_NAME))
 
 #function for getting distance between two points on earth in km (longitude, latitude)
 def get_haversine_dist(lon1, lat1, lon2, lat2):
