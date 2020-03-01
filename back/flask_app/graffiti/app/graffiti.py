@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from flask import Flask, request, g, json
 from flask_socketio import SocketIO
 from math import radians, cos, sin, asin, sqrt
@@ -39,7 +40,7 @@ def make_post():
         return json.dumps({"invalid" : "Please only post JSON."}), 400
 
     data = (post_data.get("latitude"), post_data.get("longitude"), post_data.get("text"), int(time.time()))
-
+    print("Received POST data", data)
     #check that no values are missing
     for item in data:
         if not item:
@@ -63,8 +64,8 @@ def disconnect():
 def handle_location(local):
     posts = find_messages_in_radius(local["latitude"], local["longitude"], 0.01)
     found_posts = (posts != None)
-	
-	print(posts, file = sys.stderr)
+
+    print(posts, file=sys.stderr)
 
     response_dict = {
                         "found_posts" : str(found_posts).lower(),
