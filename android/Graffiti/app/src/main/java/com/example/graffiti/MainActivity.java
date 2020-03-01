@@ -25,6 +25,8 @@ import android.widget.Toast;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,6 +34,7 @@ import org.json.JSONObject;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -65,10 +68,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void call(Object... args) {
                 try {
-                    JSONObject post = new JSONObject((String)args[0]);
-                    String posts_string = post.getString("posts");
-                    System.out.println(posts_string);
-                    System.out.println(posts_string.length());
+                    JSONObject json_object = new JSONObject((String)args[0]);
+                    String s = json_object.getString("posts");
+                    s = s.replaceAll("[<>\\[\\]-]", "");
+
+                    List<String> messages = new ArrayList<String>(Arrays.asList(s.split(",")));
+
+                    System.out.println(messages);
+                    System.out.println(messages.size());
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
