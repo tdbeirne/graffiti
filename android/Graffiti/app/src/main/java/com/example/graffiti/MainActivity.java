@@ -20,19 +20,28 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.nkzawa.socketio.client.Socket;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_LOCATION = 1;
     ImageButton find_graffiti_button  = findViewById(R.id.find_graffiti_button);
-    ImageButton post_button  = findViewById(R.id.post_button);
+    ImageButton post_button = findViewById(R.id.post_button);
+
+
+    private Socket mSocket;
+
 
     LocationManager locationManager;
-    String latitude, longitude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Initialize the socket
+        Graffiti app = (Graffiti)getApplication();
+        mSocket = app.getmSocket();
 
         ActivityCompat.requestPermissions(this, new String[]
                 {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
@@ -63,6 +72,9 @@ public class MainActivity extends AppCompatActivity {
                 openPostScreen();
             }
         });
+
+        // have getLocation return a dict of locations
+        //find_graffiti_button.setOnClickListener(view->mSocket.emit("location", getLocation()));
     }
 
     private void openPostScreen() {
