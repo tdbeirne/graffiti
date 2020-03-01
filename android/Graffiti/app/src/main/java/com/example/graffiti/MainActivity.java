@@ -13,12 +13,14 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.EditText;
+import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -51,19 +53,23 @@ public class MainActivity extends AppCompatActivity {
     ImageButton find_graffiti_button;
     ImageButton post_button;
     LocationManager locationManager;
+    LinearLayout linearLayout;
+    ListAdapter listAdapter;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        
         mainScreen = findViewById(R.id.mainScreen);
         find_graffiti_button = findViewById(R.id.find_graffiti_button);
         post_button = findViewById(R.id.post_button);
 
         ActivityCompat.requestPermissions(this, new String[]
                 {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
-
         mSocket.on("show_posts", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
@@ -81,10 +87,15 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
         mSocket.connect();
 
-        attemptSend();
+        String countryList[] = {"tommy hola", "China", "ope", "Portugle", "America", "NewZealand"};
+        // Populate linear layout with graffiti
+        linearLayout = findViewById(R.id.feed);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.list_view_setup , countryList);
+        ListView listView = findViewById(R.id.simpleListView) ;
+        listView.setAdapter(adapter);
+
 
         find_graffiti_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -100,6 +111,8 @@ public class MainActivity extends AppCompatActivity {
                 openPostActivity();
             }
         });
+
+
     }
 
     public void openPostActivity() {
@@ -165,6 +178,7 @@ public class MainActivity extends AppCompatActivity {
         final AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }
+
 
     private EditText mInputMessageView;
 

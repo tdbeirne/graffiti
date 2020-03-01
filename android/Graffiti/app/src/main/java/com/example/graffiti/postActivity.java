@@ -61,13 +61,9 @@ public class postActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 message = input_message.getText().toString().trim();
-
                 sendNewPost(message);
-
                 openMainMenu();
-
             }
-
         });
     }
 
