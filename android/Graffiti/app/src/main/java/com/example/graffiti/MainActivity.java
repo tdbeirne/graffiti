@@ -47,8 +47,8 @@ public class MainActivity extends AppCompatActivity {
         ActivityCompat.requestPermissions(this, new String[]
                 {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
 
-        Graffiti app = (Graffiti)getApplication();
-        mSocket = app.getmSocket();
+        //Graffiti app = (Graffiti) getApplication();
+        //mSocket = app.getmSocket();
 
         find_graffiti_button.setOnClickListener(new View.OnClickListener() {
             @Override

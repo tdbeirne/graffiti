@@ -15,8 +15,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 public class postActivity extends AppCompatActivity {
-    ImageButton post_button_return  = findViewById(R.id.post_button_return);
-    EditText input_message = findViewById(R.id.text_input);
+    ImageButton post_button_return;
+    EditText input_message;
     String message;
 
     @Override
@@ -24,6 +24,9 @@ public class postActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.post_layout);
+
+        post_button_return  = findViewById(R.id.post_button_return);
+        input_message = findViewById(R.id.text_input);
 
         post_button_return.setOnClickListener(new View.OnClickListener() {
             @Override
