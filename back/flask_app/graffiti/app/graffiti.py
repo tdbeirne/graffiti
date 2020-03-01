@@ -4,9 +4,12 @@ from math import radians, cos, sin, asin, sqrt
 import sqlite3
 import sys
 import time
+import random
+from math import acos
 
 DATABASE = '/opt/data/graffiti.db'
 TABLE_NAME = 'messages'
+CENTER_X, CENTER_Y = 40.1004427035469, -88.22811081366866 # center of uiuc
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -68,7 +71,10 @@ def close_connection(exception):
 def get_db():
     db = getattr(g, '_database', None)
     if db is None:
-        db = g._database = sqlite3.connect(DATABASE)
+        try:
+            db = g._database = sqlite3.connect(DATABASE)
+        except sqlite3.Error as e:
+            print(e)
     return db
 
 def fetch_query(query: str):
@@ -76,6 +82,18 @@ def fetch_query(query: str):
     cur.execute(query)
     rows = cur.fetchall()
     return rows
+
+@app.route('/gen')
+def gen_random():
+    conn = get_db()
+    cur = conn.cursor()
+    for _ in range(100):
+        x, y = random.uniform(CENTER_X - .2, CENTER_X + .2), random.uniform(CENTER_Y - .2, CENTER_Y + .2)
+        data = (x, y, "DIE", time.time())
+        query = "INSERT INTO {} (lat, lon, txt, time) VALUES {}".format(TABLE_NAME, str(data))
+        cur.execute(query)
+    conn.commit()
+    return "Ok idiot"
 
 def create_post(data_tuple):
     conn = get_db()
@@ -85,12 +103,30 @@ def create_post(data_tuple):
     conn.commit()
     print("WROTE TO DB")
 
-def find_messages_in_radius(lat: float, lon: float, km: float):
-    query = "SELECT * FROM {} WHERE acos(sin(1.3963) * sin(lat) + cos(1.3963) * cos(lat) * cos(lon - (-0.6981))) * 6371 <= {};".format(TABLE_NAME, km)
-    return fetch_query(query)
+@app.route('/rad/<num>')
+def get_random_dudes(num):
+    messages = find_messages_in_radius(CENTER_X, CENTER_Y, int(num))
+    # print(messages)
+    total = retrieve_posts(None)
+    # print(total)
+    return "Found {} messages in radius {}m out of {} total".format(len(messages), num, len(total))
+
+def find_messages_in_radius(lat: float, lon: float, m: int):
+    query = "SELECT * FROM {} WHERE lat BETWEEN {} AND {} AND lon BETWEEN {} AND {};".format(TABLE_NAME, lat-.2, lat+.2, lon-.2, lon+.2)
+    candidate_messages = fetch_query(query)
+    messages_in_radius = []
+    for msg in candidate_messages:
+        (_, clat, clon, _, _) = msg
+        if lat_long_converter(clat, clon) < m:
+            messages_in_radius.append(msg)
+    return messages_in_radius
+
 
 def retrieve_posts(local):
     return fetch_query("SELECT * FROM {}".format(TABLE_NAME))
+
+def lat_long_converter(lat, lon):
+    return acos(sin(1.3963) * sin(lat) + cos(1.3963) * cos(lat) * cos(lon - (-0.6981))) * 6371
 
 #function for getting distance between two points on earth in km (longitude, latitude)
 def get_haversine_dist(lon1, lat1, lon2, lat2):
