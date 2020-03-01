@@ -9,7 +9,7 @@ MAKE_TABLE = """CREATE TABLE IF NOT EXISTS messages (
     txt TEXT NOT NULL,
     time INTEGER NOT NULL
 );"""
- 
+
 def create_connection(db: str) -> sqlite3.Connection:
     """ create a database connection to a SQLite database """
     c = None
