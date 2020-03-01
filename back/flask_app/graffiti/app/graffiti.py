@@ -5,6 +5,7 @@ import sqlite3
 import sys
 import time
 import random
+import json
 from math import acos
 
 DATABASE = '/opt/data/graffiti.db'
@@ -35,17 +36,17 @@ def delete_all():
 def make_post():
     post_data = request.get_json()
     if post_data is None:
-        return '{"invalid" : "Please only post JSON."}', 400
+        return json.dumps({"invalid" : "Please only post JSON."}), 400
 
     data = (post_data.get("latitude"), post_data.get("longitude"), post_data.get("text"), int(time.time()))
 
     #check that no values are missing
     for item in data:
         if not item:
-            return '{"invalid" : "Missing data fields. Please check your submission."}', 400
+            return json.dumps({"invalid" : "Missing data fields. Please check your submission."}), 400
 
     create_post(data)
-    return '{"posted": "true"}''
+    return json.dumps({"posted": "true"})
 
 def create_post(data_tuple):
     conn = get_db()
